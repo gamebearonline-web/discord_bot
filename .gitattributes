@@ -1,0 +1,7 @@
+# 全テキストファイルを LF で扱う
+* text=auto eol=lf
+
+# 特に Python と TXT ファイルを指定
+*.py text eol=lf
+*.txt text eol=lf
+*.md text eol=lf
