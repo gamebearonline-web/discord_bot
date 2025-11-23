@@ -7,16 +7,33 @@ import requests
 import io
 import time
 from datetime import datetime
-import pytz   # ← JST 取得に必要
+import pytz
 
+
+# ==============================
+# Token 読み込み（ここが重要）
+# ==============================
 TOKEN = os.getenv("DISCORD_BOT_TOKEN")
-BASE_IMAGE_URL = "https://raw.githubusercontent.com/gamebearonline-web/spl3_X_Bot/main/Thumbnail/Thumbnail.png"
+
+if not TOKEN:
+    print("❌ ERROR: DISCORD_BOT_TOKEN が設定されていません")
+    raise SystemExit("環境変数 DISCORD_BOT_TOKEN が None のため終了します")
+else:
+    print(f"✅ DISCORD_BOT_TOKEN 読み込み成功（長さ: {len(TOKEN)}）")
+
+
+BASE_IMAGE_URL = (
+    "https://raw.githubusercontent.com/"
+    "gamebearonline-web/spl3_X_Bot/main/Thumbnail/Thumbnail.png"
+)
+
 
 # ==============================
 # Discord BOT の設定
 # ==============================
 intents = discord.Intents.default()
-intents.message_content = True  # 必須！
+intents.message_content = True
+
 bot = commands.Bot(command_prefix="!", intents=intents)
 
 
@@ -27,12 +44,12 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 async def schedule(interaction: discord.Interaction):
     await interaction.response.defer()
 
-    # JST 現在時刻（正確版）
+    # JST 時刻（正確版）
     jst = pytz.timezone("Asia/Tokyo")
     now = datetime.now(jst)
     time_str = now.strftime("🗓️ %Y年%-m月%-d日　🕛 %-H時更新")
 
-    # キャッシュ防止（最新画像確実取得）
+    # キャッシュ防止
     image_url = f"{BASE_IMAGE_URL}?t={int(time.time())}"
 
     try:
@@ -47,33 +64,39 @@ async def schedule(interaction: discord.Interaction):
 
 @bot.event
 async def on_ready():
-    print(f"Logged in as {bot.user}")
-    await bot.tree.sync()   # Slash commands 同期
-    print("Slash commands synced")
+    print(f"🔵 Logged in as {bot.user}")
+
+    try:
+        await bot.tree.sync()
+        print("🟢 Slash commands synced")
+    except Exception as e:
+        print(f"🔴 Slash command sync error: {e}")
 
 
 # ==============================
-# Flask（Railway Ping / ヘルスチェック）
+# Flask（Railway Ping 用）
 # ==============================
 app = Flask(__name__)
 
 @app.route("/")
 def home():
-    return "Running OK"
+    return "Discord Bot Running OK"
 
 
 # ==============================
-# Discord BOT（別スレッド起動）
+# Discord Bot 起動（別スレッド）
 # ==============================
 def run_discord_bot():
     bot.run(TOKEN)
 
 
 if __name__ == "__main__":
-    # Discord bot スレッド起動
+    # Discord Bot を別スレッドで起動
     thread = threading.Thread(target=run_discord_bot)
+    thread.daemon = True
     thread.start()
 
     # Railway が要求する PORT で Flask 起動
     port = int(os.environ.get("PORT", 5000))
+    print(f"🌐 Flask listening on port {port}")
     app.run(host="0.0.0.0", port=port)
