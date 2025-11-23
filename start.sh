@@ -1,3 +1,4 @@
 #!/bin/bash
-pip install -r requirements.txt
+pip install discord.py
+pip install requests
 python bot.py
