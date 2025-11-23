@@ -8,7 +8,7 @@ import os
 # 設定
 # ===============================
 
-TOKEN = os.getenv("DISCORD_BOT_TOKEN")  # Render 環境変数から読み込み
+TOKEN = os.getenv("DISCORD_BOT_TOKEN")  # Render の環境変数から読み込む
 
 IMAGE_URL = "https://raw.githubusercontent.com/gamebearonline-web/spl3_X_Bot/main/Thumbnail/Thumbnail.png"
 
@@ -22,7 +22,7 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 @bot.tree.command(name="schedule", description="最新のスプラ3画像を送信します")
 async def schedule(interaction: discord.Interaction):
 
-    await interaction.response.defer()  # 読み込みマークを出す（2秒対策）
+    await interaction.response.defer()
 
     try:
         img_bytes = requests.get(IMAGE_URL, timeout=10).content
@@ -43,7 +43,7 @@ async def schedule(interaction: discord.Interaction):
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user}")
-    await bot.tree.sync()  # Slash Command をサーバーへ同期
+    await bot.tree.sync()
     print("Slash commands synced")
 
 
