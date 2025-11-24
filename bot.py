@@ -47,7 +47,7 @@ async def schedule(interaction: discord.Interaction):
     # JST 時刻（正確版）
     jst = pytz.timezone("Asia/Tokyo")
     now = datetime.now(jst)
-    time_str = now.strftime("🗓️ %Y年%-m月%-d日　🕛 %-H時更新")
+    time_str = now.strftime("🗓️ %Y年%-m月%-d日　🕛 %-H時時点")
 
     # キャッシュ防止
     image_url = f"{BASE_IMAGE_URL}?t={int(time.time())}"
